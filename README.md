@@ -1,10 +1,10 @@
-# 👁️ EyeGuard Mobile
+# EyeGuard Mobile
 
 > Aplikasi Android berbasis Flutter untuk membantu pengguna menjaga kesehatan mata saat menggunakan smartphone.
 
 ---
 
-## 📖 Deskripsi Proyek
+## Deskripsi Proyek
 
 **EyeGuard Mobile** adalah aplikasi mobile Android yang dirancang untuk membantu pengguna menjaga kesehatan mata saat menggunakan smartphone. Aplikasi ini memanfaatkan sensor cahaya perangkat untuk mendeteksi intensitas pencahayaan lingkungan secara *real-time*, lalu memberikan peringatan jika pengguna terlalu lama menggunakan smartphone di kondisi pencahayaan yang buruk.
 
@@ -12,18 +12,17 @@ Selain monitoring cahaya, aplikasi menyediakan fitur pengaturan batas waktu peng
 
 ---
 
-## ✨ Fitur Utama
+## Fitur Utama
 
 | Fitur | Deskripsi |
 |---|---|
-| 🔐 **Akun** | Register, Login, Lupa Password, Edit Profil, Hapus Akun |
-| 💡 **Monitoring Cahaya** | Deteksi lux real-time, status terang/gelap, notifikasi peringatan, riwayat grafik |
-| ⏱️ **App Timer** | Batas waktu per-aplikasi, notifikasi bertingkat, background foreground service |
-| 📊 **Statistik** | Screen time harian & mingguan, grafik bar chart, aplikasi paling sering digunakan |
+| **Monitoring Cahaya** | Deteksi lux real-time, status terang/gelap, notifikasi peringatan, riwayat grafik |
+| **App Timer** | Batas waktu per-aplikasi, notifikasi bertingkat, background foreground service |
+| **Statistik** | Screen time harian & mingguan, grafik bar chart, aplikasi paling sering digunakan |
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Framework**: Flutter (Dart) — SDK `^3.11.5`
 - **Backend API**: Node.js + PostgreSQL · `https://eye-guard-api.vercel.app`
@@ -45,7 +44,7 @@ Selain monitoring cahaya, aplikasi menyediakan fitur pengaturan batas waktu peng
 
 ---
 
-## 🚀 Instalasi & Menjalankan Proyek
+## Instalasi & Menjalankan Proyek
 
 ### Prasyarat
 
@@ -60,7 +59,7 @@ Pastikan hal berikut sudah terinstal di komputer Anda:
 
 ```bash
 # 1. Clone repositori ini
-git clone <url-repositori>
+git clone https://github.com/iqbalmuhammad08f/EyeGuardMobile
 
 # 2. Masuk ke direktori proyek
 cd eye_guard_mobile
@@ -82,11 +81,3 @@ Saat pertama kali dijalankan, aplikasi akan meminta izin berikut melalui halaman
 
 ---
 
-## 👨‍💻 Tim Pengembang
-
-Proyek ini dikembangkan sebagai tugas mata kuliah **Pemrograman Berbasis Mobile (PBM)**.
-
-| Peran | Keterangan |
-|---|---|
-| Mobile (Flutter) | Pengembangan aplikasi Android |
-| Backend | REST API dengan Node.js + PostgreSQL |
