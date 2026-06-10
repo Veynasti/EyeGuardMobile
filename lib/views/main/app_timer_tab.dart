@@ -10,7 +10,7 @@ import '../../utils/duration_formatter.dart';
 class AppTimerTab extends StatefulWidget {
   final AppTimerController controller;
 
-  const AppTimerTab({Key? key, required this.controller}) : super(key: key);
+  const AppTimerTab({super.key, required this.controller});
 
   @override
   State<AppTimerTab> createState() => _AppTimerTabState();
@@ -80,12 +80,18 @@ class _AppTimerTabState extends State<AppTimerTab> {
 
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFF334155), width: 1),
+            side: BorderSide(
+              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08),
+              width: 1,
+            ),
           ),
           title: Row(
             children: [
@@ -104,7 +110,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
                 child: Text(
                   existingTimer != null ? 'Edit Timer' : 'Tambah Timer',
                   style: GoogleFonts.outfit(
-                    color: Colors.white,
+                    color: theme.colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                   ),
@@ -120,7 +126,10 @@ class _AppTimerTabState extends State<AppTimerTab> {
                 children: [
                   Text(
                     'Setel batas waktu harian untuk ${app.name}:',
-                    style: GoogleFonts.outfit(color: const Color(0xFF94A3B8), fontSize: 14),
+                    style: GoogleFonts.outfit(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -130,7 +139,13 @@ class _AppTimerTabState extends State<AppTimerTab> {
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('Jam', style: GoogleFonts.outfit(color: const Color(0xFF94A3B8), fontSize: 12)),
+                          Text(
+                            'Jam',
+                            style: GoogleFonts.outfit(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
+                          ),
                           const SizedBox(height: 4),
                           IconButton(
                             icon: const Icon(Icons.keyboard_arrow_up_rounded, color: Color(0xFF10B981)),
@@ -143,14 +158,17 @@ class _AppTimerTabState extends State<AppTimerTab> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF0F172A),
+                              color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFF334155), width: 1.5),
+                              border: Border.all(
+                                color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                                width: 1.5,
+                              ),
                             ),
                             child: Text(
                               selectedHours.toString().padLeft(2, '0'),
                               style: GoogleFonts.outfit(
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -170,7 +188,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
                       Text(
                         ':',
                         style: GoogleFonts.outfit(
-                          color: Colors.white,
+                          color: theme.colorScheme.onSurface,
                           fontSize: 36,
                           fontWeight: FontWeight.bold,
                         ),
@@ -180,7 +198,13 @@ class _AppTimerTabState extends State<AppTimerTab> {
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('Menit', style: GoogleFonts.outfit(color: const Color(0xFF94A3B8), fontSize: 12)),
+                          Text(
+                            'Menit',
+                            style: GoogleFonts.outfit(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              fontSize: 12,
+                            ),
+                          ),
                           const SizedBox(height: 4),
                           IconButton(
                             icon: const Icon(Icons.keyboard_arrow_up_rounded, color: Color(0xFF10B981)),
@@ -193,14 +217,17 @@ class _AppTimerTabState extends State<AppTimerTab> {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF0F172A),
+                              color: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFF334155), width: 1.5),
+                              border: Border.all(
+                                color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+                                width: 1.5,
+                              ),
                             ),
                             child: Text(
                               selectedMinutes.toString().padLeft(2, '0'),
                               style: GoogleFonts.outfit(
-                                color: Colors.white,
+                                color: theme.colorScheme.onSurface,
                                 fontSize: 32,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -224,16 +251,19 @@ class _AppTimerTabState extends State<AppTimerTab> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
                 'Batal',
-                style: GoogleFonts.outfit(color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600),
+                style: GoogleFonts.outfit(
+                  color: theme.colorScheme.outline,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             if (existingTimer != null)
               TextButton(
                 onPressed: () async {
-                  Navigator.of(context).pop();
+                  Navigator.of(dialogContext).pop();
                   await widget.controller.deleteTimer(app.packageName);
                 },
                 child: Text(
@@ -250,11 +280,11 @@ class _AppTimerTabState extends State<AppTimerTab> {
                       content: Text(
                         'Batas waktu minimal harus lebih dari 0.',
                         style: GoogleFonts.outfit(
-                          color: Colors.white,
+                          color: theme.colorScheme.onSurface,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-                      backgroundColor: const Color(0xFF1E293B),
+                      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                       behavior: SnackBarBehavior.floating,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -264,7 +294,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
                   );
                   return;
                 }
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
                 await widget.controller.saveTimer(
                   packageName: app.packageName,
                   appName: app.name,
@@ -292,17 +322,23 @@ class _AppTimerTabState extends State<AppTimerTab> {
   Future<void> _showOverlayPermissionDialog(AppTimerService timerService) async {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: const BorderSide(color: Color(0xFF334155), width: 1),
+            side: BorderSide(
+              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08),
+              width: 1,
+            ),
           ),
           title: Text(
             'Izin Overlay Diperlukan',
             style: GoogleFonts.outfit(
-              color: Colors.white,
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.bold,
               fontSize: 18,
             ),
@@ -310,22 +346,25 @@ class _AppTimerTabState extends State<AppTimerTab> {
           content: Text(
             'Untuk menampilkan modal pemblokiran layar ketika batas waktu aplikasi habis, EyeGuard memerlukan izin untuk ditampilkan di atas aplikasi lain.',
             style: GoogleFonts.outfit(
-              color: const Color(0xFF94A3B8),
+              color: theme.colorScheme.onSurfaceVariant,
               fontSize: 14,
               height: 1.4,
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
                 'Batal',
-                style: GoogleFonts.outfit(color: const Color(0xFF94A3B8), fontWeight: FontWeight.w600),
+                style: GoogleFonts.outfit(
+                  color: theme.colorScheme.outline,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.of(context).pop();
+                Navigator.of(dialogContext).pop();
                 await timerService.requestOverlayPermission();
                 Future.delayed(const Duration(seconds: 2), () {
                   widget.controller.loadData();
@@ -350,6 +389,8 @@ class _AppTimerTabState extends State<AppTimerTab> {
   @override
   Widget build(BuildContext context) {
     final ctrl = widget.controller;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     if (ctrl.isLoading) {
       return const Center(
@@ -371,7 +412,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
           Text(
             'Batas Waktu Aplikasi',
             style: GoogleFonts.outfit(
-              color: Colors.white,
+              color: theme.colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -380,7 +421,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
           Text(
             'Tetapkan batas harian agar tidak berlebihan menggunakan aplikasi.',
             style: GoogleFonts.outfit(
-              color: const Color(0xFF94A3B8),
+              color: theme.colorScheme.onSurfaceVariant,
               fontSize: 13,
             ),
           ),
@@ -388,17 +429,29 @@ class _AppTimerTabState extends State<AppTimerTab> {
           // Search Bar
           Container(
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+              color: isDark ? const Color(0xFF1E293B) : Colors.white,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFF334155), width: 1),
+              border: Border.all(
+                color: isDark ? const Color(0xFF334155) : Colors.black.withValues(alpha: 0.08),
+                width: 1,
+              ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
             ),
             child: TextField(
               onChanged: (val) => setState(() => _searchQuery = val),
-              style: GoogleFonts.outfit(color: Colors.white),
+              style: GoogleFonts.outfit(color: theme.colorScheme.onSurface),
               decoration: InputDecoration(
                 hintText: 'Cari aplikasi...',
-                hintStyle: GoogleFonts.outfit(color: const Color(0xFF64748B)),
-                prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF64748B)),
+                hintStyle: GoogleFonts.outfit(color: theme.colorScheme.outline),
+                prefixIcon: Icon(Icons.search_rounded, color: theme.colorScheme.outline),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 14),
               ),
@@ -411,7 +464,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
               Text(
                 'Daftar Aplikasi Pihak Ketiga',
                 style: GoogleFonts.outfit(
-                  color: Colors.white,
+                  color: theme.colorScheme.onSurface,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -440,11 +493,11 @@ class _AppTimerTabState extends State<AppTimerTab> {
                           content: Text(
                             'Daftar aplikasi berhasil diperbarui',
                             style: GoogleFonts.outfit(
-                              color: Colors.white,
+                              color: theme.colorScheme.onSurface,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          backgroundColor: const Color(0xFF1E293B),
+                          backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                           behavior: SnackBarBehavior.floating,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -463,7 +516,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
             child: RefreshIndicator(
               onRefresh: ctrl.refresh,
               color: const Color(0xFF10B981),
-              backgroundColor: const Color(0xFF1E293B),
+              backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
               child: filtered.isEmpty
                   ? ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
@@ -473,7 +526,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
                           child: Center(
                             child: Text(
                               'Tidak ada aplikasi ditemukan.',
-                              style: GoogleFonts.outfit(color: const Color(0xFF64748B)),
+                              style: GoogleFonts.outfit(color: theme.colorScheme.outline),
                             ),
                           ),
                         ),
@@ -490,14 +543,25 @@ class _AppTimerTabState extends State<AppTimerTab> {
                           margin: const EdgeInsets.only(bottom: 12),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF1E293B),
+                            color: isDark ? const Color(0xFF1E293B) : Colors.white,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: timer != null && timer.isActive
-                                  ? const Color(0xFF10B981).withOpacity(0.3)
-                                  : Colors.transparent,
+                                  ? const Color(0xFF10B981).withValues(alpha: 0.3)
+                                  : (isDark
+                                      ? Colors.transparent
+                                      : Colors.black.withValues(alpha: 0.04)),
                               width: 1,
                             ),
+                            boxShadow: isDark
+                                ? null
+                                : [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(alpha: 0.03),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  ],
                           ),
                           child: Row(
                             children: [
@@ -515,7 +579,9 @@ class _AppTimerTabState extends State<AppTimerTab> {
                                       width: 48,
                                       height: 48,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF334155),
+                                        color: isDark
+                                            ? const Color(0xFF334155)
+                                            : Colors.black.withValues(alpha: 0.05),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: const Icon(Icons.android, color: Color(0xFF10B981)),
@@ -531,7 +597,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: GoogleFonts.outfit(
-                                        color: Colors.white,
+                                        color: theme.colorScheme.onSurface,
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -544,7 +610,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
                                       style: GoogleFonts.outfit(
                                         color: timer != null && timer.isActive
                                             ? const Color(0xFF10B981)
-                                            : const Color(0xFF64748B),
+                                            : theme.colorScheme.outline,
                                         fontSize: 12,
                                         fontWeight: FontWeight.w500,
                                       ),
@@ -559,7 +625,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
                                   activeThumbColor: const Color(0xFF10B981),
                                   activeTrackColor: const Color(0xFF10B981).withValues(alpha: 0.2),
                                   inactiveThumbColor: const Color(0xFF64748B),
-                                  inactiveTrackColor: const Color(0xFF334155),
+                                  inactiveTrackColor: isDark ? const Color(0xFF334155) : Colors.black.withValues(alpha: 0.06),
                                   onChanged: (val) => ctrl.toggleTimerActive(timer, val),
                                 ),
                                 IconButton(
@@ -570,7 +636,7 @@ class _AppTimerTabState extends State<AppTimerTab> {
                                 ElevatedButton(
                                   onPressed: () => _showTimePickerDialog(app, null),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF1E293B),
+                                    backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                                     foregroundColor: const Color(0xFF10B981),
                                     elevation: 0,
                                     side: const BorderSide(color: Color(0xFF10B981), width: 1),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../main.dart';
 import '../../services/api_service.dart';
 
 class ProfileTab extends StatefulWidget {
@@ -63,7 +64,7 @@ class _ProfileTabState extends State<ProfileTab> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
+      builder: (dialogContext) {
         final nameController = TextEditingController(text: _profileData?['name']);
         final currentPasswordController = TextEditingController();
         final newPasswordController = TextEditingController();
@@ -75,16 +76,21 @@ class _ProfileTabState extends State<ProfileTab> {
 
         return StatefulBuilder(
           builder: (context, setStateDialog) {
+            final theme = Theme.of(context);
+            final isDark = theme.brightness == Brightness.dark;
+
             return AlertDialog(
-              backgroundColor: const Color(0xFF1E293B),
+              backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(color: Colors.white.withOpacity(0.08)),
+                side: BorderSide(
+                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08),
+                ),
               ),
               title: Text(
                 'Edit Data Akun',
                 style: GoogleFonts.outfit(
-                  color: Colors.white,
+                  color: theme.colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 ),
@@ -100,9 +106,9 @@ class _ProfileTabState extends State<ProfileTab> {
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           decoration: BoxDecoration(
-                            color: Colors.redAccent.withOpacity(0.1),
+                            color: Colors.redAccent.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                            border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
                           ),
                           child: Text(
                             dialogError!,
@@ -115,7 +121,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       // Input Nama
                       TextFormField(
                         controller: nameController,
-                        style: GoogleFonts.outfit(color: Colors.white),
+                        style: GoogleFonts.outfit(color: theme.colorScheme.onSurface),
                         decoration: _buildInputDecoration(
                           label: 'Nama Lengkap',
                           hint: 'Masukkan nama baru',
@@ -130,12 +136,12 @@ class _ProfileTabState extends State<ProfileTab> {
                       ),
                       const SizedBox(height: 16),
 
-                      const Divider(color: Colors.white10, height: 24),
+                      Divider(color: theme.dividerColor, height: 24),
                       
                       Text(
                         'Ganti Kata Sandi (Opsional)',
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF94A3B8),
+                          color: theme.colorScheme.onSurfaceVariant,
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
                         ),
@@ -146,7 +152,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       TextFormField(
                         controller: newPasswordController,
                         obscureText: obscureNew,
-                        style: GoogleFonts.outfit(color: Colors.white),
+                        style: GoogleFonts.outfit(color: theme.colorScheme.onSurface),
                         decoration: _buildInputDecoration(
                           label: 'Password Baru',
                           hint: 'Min 8 karakter, A, a, 1',
@@ -154,7 +160,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           suffixIcon: IconButton(
                             icon: Icon(
                               obscureNew ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                              color: const Color(0xFF64748B),
+                              color: theme.colorScheme.outline,
                             ),
                             onPressed: () => setStateDialog(() => obscureNew = !obscureNew),
                           ),
@@ -178,7 +184,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       TextFormField(
                         controller: currentPasswordController,
                         obscureText: obscureCurrent,
-                        style: GoogleFonts.outfit(color: Colors.white),
+                        style: GoogleFonts.outfit(color: theme.colorScheme.onSurface),
                         decoration: _buildInputDecoration(
                           label: 'Password Saat Ini',
                           hint: 'Wajib jika ganti password',
@@ -186,7 +192,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           suffixIcon: IconButton(
                             icon: Icon(
                               obscureCurrent ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                              color: const Color(0xFF64748B),
+                              color: theme.colorScheme.outline,
                             ),
                             onPressed: () => setStateDialog(() => obscureCurrent = !obscureCurrent),
                           ),
@@ -204,9 +210,9 @@ class _ProfileTabState extends State<ProfileTab> {
               ),
               actions: [
                 TextButton(
-                  onPressed: isUpdating ? null : () => Navigator.pop(context),
+                  onPressed: isUpdating ? null : () => Navigator.pop(dialogContext),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF94A3B8),
+                    foregroundColor: theme.colorScheme.outline,
                   ),
                   child: const Text('Batal'),
                 ),
@@ -230,18 +236,18 @@ class _ProfileTabState extends State<ProfileTab> {
                                     : null,
                               );
                               if (res['status'] == 200) {
-                                if (!context.mounted) return;
-                                Navigator.pop(context);
+                                if (!dialogContext.mounted) return;
+                                Navigator.pop(dialogContext);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       'Profil berhasil diperbarui',
                                       style: GoogleFonts.outfit(
-                                        color: Colors.white,
+                                        color: theme.colorScheme.onSurface,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    backgroundColor: const Color(0xFF1E293B),
+                                    backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                                     behavior: SnackBarBehavior.floating,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -259,7 +265,7 @@ class _ProfileTabState extends State<ProfileTab> {
                             } catch (e) {
                               setStateDialog(() {
                                 dialogError = 'Kesalahan koneksi internet';
-                                isUpdating = false;
+                                  isUpdating = false;
                               });
                             }
                           }
@@ -292,12 +298,16 @@ class _ProfileTabState extends State<ProfileTab> {
     showDialog(
       context: context,
       barrierDismissible: true,
-      builder: (context) {
+      builder: (dialogContext) {
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
         return AlertDialog(
-          backgroundColor: const Color(0xFF1E293B),
+          backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: Colors.white.withOpacity(0.08)),
+            side: BorderSide(
+              color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08),
+            ),
           ),
           title: Row(
             children: [
@@ -306,7 +316,7 @@ class _ProfileTabState extends State<ProfileTab> {
               Text(
                 'Keluar Akun',
                 style: GoogleFonts.outfit(
-                  color: Colors.white,
+                  color: theme.colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
                 ),
@@ -316,35 +326,35 @@ class _ProfileTabState extends State<ProfileTab> {
           content: Text(
             'Apakah Anda yakin ingin keluar dari akun EyeGuard Anda?',
             style: GoogleFonts.outfit(
-              color: const Color(0xFFCBD5E1),
+              color: theme.colorScheme.onSurfaceVariant,
               fontSize: 14,
               height: 1.4,
             ),
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               style: TextButton.styleFrom(
-                foregroundColor: const Color(0xFF94A3B8),
+                foregroundColor: theme.colorScheme.outline,
               ),
               child: const Text('Batal'),
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.pop(context); // Tutup dialog
+                Navigator.pop(dialogContext); // Tutup dialog
                 await widget.apiService.clearToken();
-                if (!context.mounted) return;
+                if (!mounted) return;
                 Navigator.of(context).popUntil((route) => route.isFirst);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
                       'Berhasil keluar dari akun.',
                       style: GoogleFonts.outfit(
-                        color: Colors.white,
+                        color: theme.colorScheme.onSurface,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    backgroundColor: const Color(0xFF1E293B),
+                    backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                     behavior: SnackBarBehavior.floating,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -373,7 +383,7 @@ class _ProfileTabState extends State<ProfileTab> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) {
+      builder: (dialogContext) {
         final passwordController = TextEditingController();
         final formKey = GlobalKey<FormState>();
         bool obscurePassword = true;
@@ -382,11 +392,16 @@ class _ProfileTabState extends State<ProfileTab> {
 
         return StatefulBuilder(
           builder: (context, setStateDialog) {
+            final theme = Theme.of(context);
+            final isDark = theme.brightness == Brightness.dark;
+
             return AlertDialog(
-              backgroundColor: const Color(0xFF1E293B),
+              backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(color: Colors.white.withOpacity(0.08)),
+                side: BorderSide(
+                  color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08),
+                ),
               ),
               title: Row(
                 children: [
@@ -395,7 +410,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   Text(
                     'Hapus Akun',
                     style: GoogleFonts.outfit(
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                       fontWeight: FontWeight.bold,
                       fontSize: 20,
                     ),
@@ -412,7 +427,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       Text(
                         'Apakah Anda yakin ingin menghapus akun Anda secara permanen? Semua data sensor cahaya, durasi penggunaan aplikasi, statistik harian, dan informasi profil Anda akan terhapus sepenuhnya dari sistem dan tidak dapat dipulihkan.',
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFFCBD5E1),
+                          color: theme.colorScheme.onSurfaceVariant,
                           fontSize: 14,
                           height: 1.4,
                         ),
@@ -422,9 +437,9 @@ class _ProfileTabState extends State<ProfileTab> {
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                           decoration: BoxDecoration(
-                            color: Colors.redAccent.withOpacity(0.1),
+                            color: Colors.redAccent.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.redAccent.withOpacity(0.3)),
+                            border: Border.all(color: Colors.redAccent.withValues(alpha: 0.3)),
                           ),
                           child: Text(
                             dialogError!,
@@ -436,7 +451,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       TextFormField(
                         controller: passwordController,
                         obscureText: obscurePassword,
-                        style: GoogleFonts.outfit(color: Colors.white),
+                        style: GoogleFonts.outfit(color: theme.colorScheme.onSurface),
                         decoration: _buildInputDecoration(
                           label: 'Password Anda',
                           hint: 'Masukkan password saat ini',
@@ -444,7 +459,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           suffixIcon: IconButton(
                             icon: Icon(
                               obscurePassword ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                              color: const Color(0xFF64748B),
+                              color: theme.colorScheme.outline,
                             ),
                             onPressed: () => setStateDialog(() => obscurePassword = !obscurePassword),
                           ),
@@ -462,9 +477,9 @@ class _ProfileTabState extends State<ProfileTab> {
               ),
               actions: [
                 TextButton(
-                  onPressed: isDeleting ? null : () => Navigator.pop(context),
+                  onPressed: isDeleting ? null : () => Navigator.pop(dialogContext),
                   style: TextButton.styleFrom(
-                    foregroundColor: const Color(0xFF94A3B8),
+                    foregroundColor: theme.colorScheme.outline,
                   ),
                   child: const Text('Batal'),
                 ),
@@ -480,20 +495,21 @@ class _ProfileTabState extends State<ProfileTab> {
                             try {
                               final res = await widget.apiService.deleteAccount(passwordController.text);
                               if (res['status'] == 200) {
-                                if (!context.mounted) return;
-                                Navigator.of(context).popUntil((route) => route.isFirst);
+                                if (!dialogContext.mounted) return;
+                                Navigator.of(dialogContext).popUntil((route) => route.isFirst);
                                 await widget.apiService.clearToken();
-                                if (!context.mounted) return;
+                                if (!mounted) return;
+                                // ignore: use_build_context_synchronously
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
                                       'Akun berhasil dihapus permanen',
                                       style: GoogleFonts.outfit(
-                                        color: Colors.white,
+                                        color: theme.colorScheme.onSurface,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
-                                    backgroundColor: const Color(0xFF1E293B),
+                                    backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
                                     behavior: SnackBarBehavior.floating,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(12),
@@ -545,19 +561,29 @@ class _ProfileTabState extends State<ProfileTab> {
     required IconData icon,
     Widget? suffixIcon,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return InputDecoration(
       labelText: label,
-      labelStyle: GoogleFonts.outfit(color: const Color(0xFF94A3B8), fontSize: 14),
+      labelStyle: GoogleFonts.outfit(
+        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+        fontSize: 14,
+      ),
       hintText: hint,
-      hintStyle: GoogleFonts.outfit(color: const Color(0xFF64748B), fontSize: 13),
+      hintStyle: GoogleFonts.outfit(
+        color: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
+        fontSize: 13,
+      ),
       prefixIcon: Icon(icon, color: const Color(0xFF10B981), size: 20),
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: const Color(0xFF0F172A),
+      fillColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF1F5F9),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.white.withOpacity(0.05)),
+        borderSide: BorderSide(
+          color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+        ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -574,6 +600,210 @@ class _ProfileTabState extends State<ProfileTab> {
     );
   }
 
+  /// Mengembalikan label teks tema aktif saat ini.
+  String _getThemeLabel(ThemeMode mode) {
+    switch (mode) {
+      case ThemeMode.light:
+        return 'Tema Terang';
+      case ThemeMode.dark:
+        return 'Tema Gelap';
+      default:
+        return 'Mengikuti Sistem HP';
+    }
+  }
+
+  /// Menampilkan dialog pemilihan tema yang mengubah UI secara langsung (real-time).
+  void _showThemeDialog(BuildContext context) {
+    final currentMode = MyApp.of(context).themeMode;
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        ThemeMode selectedMode = currentMode;
+        return StatefulBuilder(
+          builder: (ctx, setDialogState) {
+            return AlertDialog(
+              backgroundColor: Theme.of(ctx).brightness == Brightness.dark
+                  ? const Color(0xFF1E293B)
+                  : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: Theme.of(ctx).brightness == Brightness.dark
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.08),
+                ),
+              ),
+              title: Row(
+                children: [
+                  const Icon(Icons.palette_rounded, color: Color(0xFF10B981), size: 24),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Tema Aplikasi',
+                    style: GoogleFonts.outfit(
+                      color: Theme.of(ctx).colorScheme.onSurface,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _buildThemeOptionTile(
+                    context: ctx,
+                    label: 'Mengikuti Sistem HP',
+                    subtitle: 'Otomatis menyesuaikan tema perangkat',
+                    icon: Icons.phone_android_rounded,
+                    mode: ThemeMode.system,
+                    currentMode: selectedMode,
+                    onChanged: (val) => setDialogState(() => selectedMode = val!),
+                  ),
+                  _buildThemeOptionTile(
+                    context: ctx,
+                    label: 'Tema Terang',
+                    subtitle: 'Tampilan putih dan cerah',
+                    icon: Icons.wb_sunny_rounded,
+                    mode: ThemeMode.light,
+                    currentMode: selectedMode,
+                    onChanged: (val) => setDialogState(() => selectedMode = val!),
+                  ),
+                  _buildThemeOptionTile(
+                    context: ctx,
+                    label: 'Tema Gelap',
+                    subtitle: 'Tampilan gelap, nyaman di malam hari',
+                    icon: Icons.dark_mode_rounded,
+                    mode: ThemeMode.dark,
+                    currentMode: selectedMode,
+                    onChanged: (val) => setDialogState(() => selectedMode = val!),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(
+                    'Batal',
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF94A3B8),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Terapkan tema secara real-time tanpa restart
+                    MyApp.of(context).setThemeMode(selectedMode);
+                    Navigator.pop(dialogContext);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF10B981),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'Terapkan',
+                    style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// Widget satu baris pilihan tema di dalam dialog.
+  Widget _buildThemeOptionTile({
+    required BuildContext context,
+    required String label,
+    required String subtitle,
+    required IconData icon,
+    required ThemeMode mode,
+    required ThemeMode currentMode,
+    required ValueChanged<ThemeMode?> onChanged,
+  }) {
+    final bool isSelected = currentMode == mode;
+    return GestureDetector(
+      onTap: () => onChanged(mode),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? const Color(0xFF10B981).withValues(alpha: 0.08)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? const Color(0xFF10B981).withValues(alpha: 0.4)
+                : Theme.of(context).brightness == Brightness.dark
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.black.withValues(alpha: 0.06),
+            width: isSelected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: GoogleFonts.outfit(
+                      color: isSelected
+                          ? const Color(0xFF10B981)
+                          : Theme.of(context).colorScheme.onSurface,
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.outfit(
+                      color: const Color(0xFF94A3B8),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 22,
+              height: 22,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected
+                    ? const Color(0xFF10B981)
+                    : Colors.transparent,
+                border: Border.all(
+                  color: isSelected
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFF64748B),
+                  width: 2,
+                ),
+              ),
+              child: isSelected
+                  ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
+                  : null,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -585,6 +815,7 @@ class _ProfileTabState extends State<ProfileTab> {
     }
 
     if (_errorMessage != null) {
+      final theme = Theme.of(context);
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -596,7 +827,7 @@ class _ProfileTabState extends State<ProfileTab> {
               Text(
                 _errorMessage!,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(color: Colors.white, fontSize: 16),
+                style: GoogleFonts.outfit(color: theme.colorScheme.onSurface, fontSize: 16),
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
@@ -620,6 +851,9 @@ class _ProfileTabState extends State<ProfileTab> {
     final email = _profileData?['email'] ?? '-';
     final createdAt = _profileData?['created_at'];
 
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return ListView(
       padding: const EdgeInsets.all(24.0),
       children: [
@@ -628,18 +862,29 @@ class _ProfileTabState extends State<ProfileTab> {
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                const Color(0xFF1E293B).withOpacity(0.9),
-                const Color(0xFF0F172A).withOpacity(0.6),
-              ],
+              colors: isDark
+                  ? [
+                      const Color(0xFF1E293B).withValues(alpha: 0.9),
+                      const Color(0xFF0F172A).withValues(alpha: 0.6),
+                    ]
+                  : [
+                      Colors.white,
+                      const Color(0xFFF1F5F9),
+                    ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Colors.white.withOpacity(0.06)),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.06)
+                  : Colors.black.withValues(alpha: 0.06),
+            ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.15)
+                    : Colors.black.withValues(alpha: 0.06),
                 blurRadius: 12,
                 offset: const Offset(0, 8),
               )
@@ -652,10 +897,10 @@ class _ProfileTabState extends State<ProfileTab> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withOpacity(0.1),
+                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: const Color(0xFF10B981).withOpacity(0.4),
+                    color: const Color(0xFF10B981).withValues(alpha: 0.4),
                     width: 2,
                   ),
                 ),
@@ -676,7 +921,7 @@ class _ProfileTabState extends State<ProfileTab> {
               Text(
                 name,
                 style: GoogleFonts.outfit(
-                  color: Colors.white,
+                  color: theme.colorScheme.onSurface,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -687,7 +932,7 @@ class _ProfileTabState extends State<ProfileTab> {
               Text(
                 email,
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF94A3B8),
+                  color: theme.colorScheme.onSurfaceVariant,
                   fontSize: 14,
                 ),
               ),
@@ -697,7 +942,7 @@ class _ProfileTabState extends State<ProfileTab> {
               Text(
                 'Bergabung sejak: ${_formatDate(createdAt)}',
                 style: GoogleFonts.outfit(
-                  color: const Color(0xFF64748B),
+                  color: theme.colorScheme.outline,
                   fontSize: 12,
                 ),
               ),
@@ -710,7 +955,7 @@ class _ProfileTabState extends State<ProfileTab> {
         Text(
           'Akun & Sistem',
           style: GoogleFonts.outfit(
-            color: Colors.white,
+            color: Theme.of(context).colorScheme.onSurface,
             fontSize: 16,
             fontWeight: FontWeight.bold,
           ),
@@ -720,9 +965,18 @@ class _ProfileTabState extends State<ProfileTab> {
         // Settings items container
         Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1E293B).withOpacity(0.5),
+            color: isDark
+                ? const Color(0xFF1E293B).withValues(alpha: 0.5)
+                : Colors.white,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withOpacity(0.04)),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.04)
+                  : Colors.black.withValues(alpha: 0.05),
+            ),
+            boxShadow: isDark
+                ? null
+                : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 4))],
           ),
           child: Column(
             children: [
@@ -732,19 +986,45 @@ class _ProfileTabState extends State<ProfileTab> {
                 leading: const Icon(Icons.edit_rounded, color: Color(0xFF10B981)),
                 title: Text(
                   'Edit Data Akun',
-                  style: GoogleFonts.outfit(color: Colors.white, fontSize: 15),
+                  style: GoogleFonts.outfit(
+                    color: theme.colorScheme.onSurface,
+                    fontSize: 15,
+                  ),
                 ),
                 subtitle: Text(
                   'Perbarui nama dan password Anda',
-                  style: GoogleFonts.outfit(color: const Color(0xFF64748B), fontSize: 12),
+                  style: GoogleFonts.outfit(color: theme.colorScheme.outline, fontSize: 12),
                 ),
-                trailing: const Icon(
+                trailing: Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 14,
-                  color: Color(0xFF94A3B8),
+                  color: theme.colorScheme.outline,
                 ),
               ),
-              const Divider(color: Colors.white10, height: 1),
+              Divider(color: theme.dividerColor, height: 1),
+
+              // Theme Tile
+              ListTile(
+                onTap: () => _showThemeDialog(context),
+                leading: const Icon(Icons.palette_rounded, color: Color(0xFF10B981)),
+                title: Text(
+                  'Tema Aplikasi',
+                  style: GoogleFonts.outfit(
+                    color: theme.colorScheme.onSurface,
+                    fontSize: 15,
+                  ),
+                ),
+                subtitle: Text(
+                  _getThemeLabel(MyApp.of(context).themeMode),
+                  style: GoogleFonts.outfit(color: theme.colorScheme.outline, fontSize: 12),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 14,
+                  color: theme.colorScheme.outline,
+                ),
+              ),
+              Divider(color: theme.dividerColor, height: 1),
 
               // Delete Account Tile
               ListTile(
@@ -752,11 +1032,14 @@ class _ProfileTabState extends State<ProfileTab> {
                 leading: const Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
                 title: Text(
                   'Hapus Akun',
-                  style: GoogleFonts.outfit(color: Colors.white, fontSize: 15),
+                  style: GoogleFonts.outfit(
+                    color: theme.colorScheme.onSurface,
+                    fontSize: 15,
+                  ),
                 ),
                 subtitle: Text(
                   'Hapus akun Anda secara permanen',
-                  style: GoogleFonts.outfit(color: const Color(0xFF64748B), fontSize: 12),
+                  style: GoogleFonts.outfit(color: theme.colorScheme.outline, fontSize: 12),
                 ),
                 trailing: const Icon(
                   Icons.arrow_forward_ios_rounded,
@@ -774,7 +1057,7 @@ class _ProfileTabState extends State<ProfileTab> {
           child: Text(
             'Versi Aplikasi: v1.0.0 (Android Only)',
             style: GoogleFonts.outfit(
-              color: const Color(0xFF64748B),
+              color: theme.colorScheme.outline,
               fontSize: 13,
             ),
           ),

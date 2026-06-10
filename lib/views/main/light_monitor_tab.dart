@@ -189,6 +189,8 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final Color lightColor = _isEnabled ? _getLightColor() : Colors.grey;
     final String lightStatus = _isEnabled ? _getLightCondition() : 'Monitoring Nonaktif';
 
@@ -198,7 +200,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
         await _syncAndFetchHistory();
       },
       color: const Color(0xFF10B981),
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
       child: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
@@ -207,20 +209,27 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
             padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  const Color(0xFF1E293B).withOpacity(0.9),
-                  const Color(0xFF0F172A).withOpacity(0.6),
-                ],
+                colors: isDark
+                    ? [
+                        const Color(0xFF1E293B).withValues(alpha: 0.9),
+                        const Color(0xFF0F172A).withValues(alpha: 0.6),
+                      ]
+                    : [
+                        Colors.white,
+                        Colors.white.withValues(alpha: 0.9),
+                      ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: Colors.white.withOpacity(0.05)),
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.black.withValues(alpha: 0.05),
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: isDark ? Colors.black.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.05),
                   blurRadius: 15,
-                  offset: const Offset(0, 10),
+                  offset: const Offset(0, 8),
                 )
               ]
             ),
@@ -235,18 +244,18 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        lightColor.withOpacity(0.3),
-                        lightColor.withOpacity(0.05),
+                        lightColor.withValues(alpha: 0.3),
+                        lightColor.withValues(alpha: 0.05),
                       ],
                       stops: const [0.4, 1.0],
                     ),
                     border: Border.all(
-                      color: lightColor.withOpacity(0.6),
+                      color: lightColor.withValues(alpha: 0.6),
                       width: 3,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: lightColor.withOpacity(0.25),
+                        color: lightColor.withValues(alpha: 0.25),
                         blurRadius: 25,
                         spreadRadius: 5,
                       )
@@ -270,7 +279,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                       ? (_currentLux == -1 ? '-- Lux' : '$_currentLux Lux')
                       : 'OFF',
                   style: GoogleFonts.outfit(
-                    color: Colors.white,
+                    color: theme.colorScheme.onSurface,
                     fontSize: 36,
                     fontWeight: FontWeight.bold,
                     letterSpacing: -1.0,
@@ -296,9 +305,20 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B).withOpacity(0.6),
+              color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.6) : Colors.white,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.04)),
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.04),
+              ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,7 +334,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                         Text(
                           'Monitoring Cahaya Aktif',
                           style: GoogleFonts.outfit(
-                            color: Colors.white,
+                            color: theme.colorScheme.onSurface,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -323,7 +343,8 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                     ),
                     Switch(
                       value: _isEnabled,
-                      activeColor: const Color(0xFF10B981),
+                      activeThumbColor: const Color(0xFF10B981),
+                      activeTrackColor: const Color(0xFF10B981).withValues(alpha: 0.4),
                       onChanged: (val) {
                         setState(() {
                           _isEnabled = val;
@@ -341,9 +362,9 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                 ),
                 
                 if (_isEnabled) ...[
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12.0),
-                    child: Divider(color: Colors.white10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Divider(color: theme.dividerColor),
                   ),
                   
                   // Threshold Slider Label
@@ -353,7 +374,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                       Text(
                         'Ambang Batas Lux',
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF94A3B8),
+                          color: theme.colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -373,11 +394,11 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                   SliderTheme(
                     data: SliderThemeData(
                       activeTrackColor: const Color(0xFF10B981),
-                      inactiveTrackColor: const Color(0xFF334155),
+                      inactiveTrackColor: isDark ? const Color(0xFF334155) : Colors.black.withValues(alpha: 0.06),
                       thumbColor: const Color(0xFF10B981),
-                      overlayColor: const Color(0xFF10B981).withOpacity(0.2),
-                      valueIndicatorColor: const Color(0xFF1E293B),
-                      valueIndicatorTextStyle: const TextStyle(color: Colors.white),
+                      overlayColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+                      valueIndicatorColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      valueIndicatorTextStyle: TextStyle(color: theme.colorScheme.onSurface),
                     ),
                     child: Slider(
                       value: _threshold.toDouble(),
@@ -400,14 +421,14 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('10 Lux (Sangat Gelap)', style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF64748B))),
-                      Text('100 Lux (Cahaya Redup)', style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF64748B))),
+                      Text('10 Lux (Sangat Gelap)', style: GoogleFonts.outfit(fontSize: 10, color: theme.colorScheme.outline)),
+                      Text('100 Lux (Cahaya Redup)', style: GoogleFonts.outfit(fontSize: 10, color: theme.colorScheme.outline)),
                     ],
                   ),
 
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 12.0),
-                    child: Divider(color: Colors.white10),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Divider(color: theme.dividerColor),
                   ),
 
                   // Notification Interval Slider Label
@@ -417,7 +438,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                       Text(
                         'Durasi Peringatan Gelap',
                         style: GoogleFonts.outfit(
-                          color: const Color(0xFF94A3B8),
+                          color: theme.colorScheme.onSurfaceVariant,
                           fontSize: 14,
                         ),
                       ),
@@ -437,11 +458,11 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                   SliderTheme(
                     data: SliderThemeData(
                       activeTrackColor: const Color(0xFF10B981),
-                      inactiveTrackColor: const Color(0xFF334155),
+                      inactiveTrackColor: isDark ? const Color(0xFF334155) : Colors.black.withValues(alpha: 0.06),
                       thumbColor: const Color(0xFF10B981),
-                      overlayColor: const Color(0xFF10B981).withOpacity(0.2),
-                      valueIndicatorColor: const Color(0xFF1E293B),
-                      valueIndicatorTextStyle: const TextStyle(color: Colors.white),
+                      overlayColor: const Color(0xFF10B981).withValues(alpha: 0.2),
+                      valueIndicatorColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                      valueIndicatorTextStyle: TextStyle(color: theme.colorScheme.onSurface),
                     ),
                     child: Slider(
                       value: _notificationInterval.toDouble(),
@@ -464,8 +485,8 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('1 Menit', style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF64748B))),
-                      Text('10 Menit', style: GoogleFonts.outfit(fontSize: 10, color: const Color(0xFF64748B))),
+                      Text('1 Menit', style: GoogleFonts.outfit(fontSize: 10, color: theme.colorScheme.outline)),
+                      Text('10 Menit', style: GoogleFonts.outfit(fontSize: 10, color: theme.colorScheme.outline)),
                     ],
                   ),
                 ],
@@ -504,9 +525,20 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B).withOpacity(0.6),
+              color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.6) : Colors.white,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Colors.white.withOpacity(0.04)),
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.04),
+              ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -518,7 +550,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                       child: Text(
                         'Fluktuasi Kecerahan Cahaya',
                         style: GoogleFonts.outfit(
-                          color: Colors.white,
+                          color: theme.colorScheme.onSurface,
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
@@ -527,7 +559,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.refresh_rounded, size: 18, color: Color(0xFF94A3B8)),
+                      icon: Icon(Icons.refresh_rounded, size: 18, color: theme.colorScheme.outline),
                       onPressed: _isLoadingStats ? null : _syncAndFetchHistory,
                     ),
                   ],
@@ -561,19 +593,33 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
     required IconData icon,
     required Color iconColor,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B).withOpacity(0.7),
+        color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.7) : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.04)),
+        border: Border.all(
+          color: isDark ? Colors.white.withValues(alpha: 0.04) : Colors.black.withValues(alpha: 0.04),
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                )
+              ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.1),
+              color: iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor, size: 20),
@@ -587,7 +633,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                 Text(
                   title,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF94A3B8),
+                    color: theme.colorScheme.onSurfaceVariant,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.8,
@@ -597,7 +643,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                 Text(
                   value,
                   style: GoogleFonts.outfit(
-                    color: Colors.white,
+                    color: theme.colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -612,6 +658,9 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
 
   // Grafik data nyata menggunakan fl_chart
   Widget _buildHistoryChart() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     List<FlSpot> spots = [];
     for (int i = 0; i < _lightHistory.length; i++) {
       final double lux = double.tryParse(_lightHistory[i]['lux'].toString()) ?? 0.0;
@@ -635,7 +684,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                   space: 4,
                   child: Text(
                     '${val.toInt()}',
-                    style: const TextStyle(color: Color(0xFF64748B), fontSize: 9),
+                    style: TextStyle(color: theme.colorScheme.outline, fontSize: 9),
                   ),
                 );
               },
@@ -656,7 +705,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                         space: 6,
                         child: Text(
                           DateFormat('HH:mm').format(dt),
-                          style: const TextStyle(color: Color(0xFF64748B), fontSize: 9),
+                          style: TextStyle(color: theme.colorScheme.outline, fontSize: 9),
                         ),
                       );
                     } catch (_) {}
@@ -670,14 +719,16 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
         borderData: FlBorderData(show: false),
         lineTouchData: LineTouchData(
           touchTooltipData: LineTouchTooltipData(
-            getTooltipColor: (_) => const Color(0xFF1E293B),
-            tooltipBorder: BorderSide(color: Colors.white.withOpacity(0.1)),
+            getTooltipColor: (_) => isDark ? const Color(0xFF1E293B) : Colors.white,
+            tooltipBorder: BorderSide(
+              color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.1),
+            ),
             getTooltipItems: (List<LineBarSpot> touchedSpots) {
               return touchedSpots.map((LineBarSpot touchedSpot) {
                 return LineTooltipItem(
                   'Lux: ${touchedSpot.y.toInt()}',
                   GoogleFonts.outfit(
-                    color: Colors.white,
+                    color: theme.colorScheme.onSurface,
                     fontWeight: FontWeight.bold,
                     fontSize: 12,
                   ),
@@ -698,8 +749,8 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF10B981).withOpacity(0.2),
-                  const Color(0xFF10B981).withOpacity(0.0),
+                  const Color(0xFF10B981).withValues(alpha: 0.2),
+                  const Color(0xFF10B981).withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -713,6 +764,9 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
 
   // Tampilan Grafik Simulasi ketika data historis belum ada di server (menghindari visual kosong)
   Widget _buildDummyChartPlaceholder() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final List<FlSpot> dummySpots = [
       const FlSpot(0, 80),
       const FlSpot(1, 65),
@@ -740,10 +794,10 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                     showTitles: true,
                     getTitlesWidget: (val, meta) {
                       switch (val.toInt()) {
-                        case 0: return SideTitleWidget(meta: meta, space: 4, child: const Text('08:00', style: TextStyle(fontSize: 8)));
-                        case 2: return SideTitleWidget(meta: meta, space: 4, child: const Text('10:00', style: TextStyle(fontSize: 8)));
-                        case 4: return SideTitleWidget(meta: meta, space: 4, child: const Text('12:00', style: TextStyle(fontSize: 8)));
-                        case 6: return SideTitleWidget(meta: meta, space: 4, child: const Text('14:00', style: TextStyle(fontSize: 8)));
+                        case 0: return SideTitleWidget(meta: meta, space: 4, child: Text('08:00', style: TextStyle(fontSize: 8, color: theme.colorScheme.outline)));
+                        case 2: return SideTitleWidget(meta: meta, space: 4, child: Text('10:00', style: TextStyle(fontSize: 8, color: theme.colorScheme.outline)));
+                        case 4: return SideTitleWidget(meta: meta, space: 4, child: Text('12:00', style: TextStyle(fontSize: 8, color: theme.colorScheme.outline)));
+                        case 6: return SideTitleWidget(meta: meta, space: 4, child: Text('14:00', style: TextStyle(fontSize: 8, color: theme.colorScheme.outline)));
                         default: return const SizedBox();
                       }
                     },
@@ -755,7 +809,7 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
                 LineChartBarData(
                   spots: dummySpots,
                   isCurved: true,
-                  color: const Color(0xFF64748B),
+                  color: theme.colorScheme.outline,
                   barWidth: 2,
                   isStrokeCapRound: true,
                   dotData: const FlDotData(show: false),
@@ -769,15 +823,26 @@ class _LightMonitorTabState extends State<LightMonitorTab> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF0F172A).withOpacity(0.85),
+              color: isDark ? const Color(0xFF0F172A).withValues(alpha: 0.85) : Colors.white.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white10),
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.08) : Colors.black.withValues(alpha: 0.08),
+              ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
             ),
             child: Text(
               'Belum ada data riwayat.\nData akan muncul setelah sinkronisasi.',
               textAlign: TextAlign.center,
               style: GoogleFonts.outfit(
-                color: const Color(0xFF94A3B8),
+                color: theme.colorScheme.onSurfaceVariant,
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
               ),

@@ -35,6 +35,9 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     final todayUsage = widget.controller.todayUsage;
     final weeklyUsage = widget.controller.weeklyUsage;
 
@@ -82,7 +85,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
     return RefreshIndicator(
       onRefresh: () => widget.controller.loadAllData(),
       color: const Color(0xFF10B981),
-      backgroundColor: const Color(0xFF1E293B),
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(24.0),
@@ -91,7 +94,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
           Container(
             padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
@@ -99,17 +102,25 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => setState(() => _isWeeklySelected = false),
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
-                        color: !_isWeeklySelected ? const Color(0xFF0F172A) : Colors.transparent,
+                        color: !_isWeeklySelected
+                            ? (isDark ? const Color(0xFF0F172A) : Colors.white)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
+                        boxShadow: !_isWeeklySelected && !isDark
+                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 2))]
+                            : null,
                       ),
                       child: Text(
                         'Hari Ini',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.outfit(
-                          color: !_isWeeklySelected ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+                          color: !_isWeeklySelected
+                              ? const Color(0xFF10B981)
+                              : theme.colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -120,17 +131,25 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                 Expanded(
                   child: GestureDetector(
                     onTap: () => setState(() => _isWeeklySelected = true),
-                    child: Container(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       decoration: BoxDecoration(
-                        color: _isWeeklySelected ? const Color(0xFF0F172A) : Colors.transparent,
+                        color: _isWeeklySelected
+                            ? (isDark ? const Color(0xFF0F172A) : Colors.white)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(8),
+                        boxShadow: _isWeeklySelected && !isDark
+                            ? [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 4, offset: const Offset(0, 2))]
+                            : null,
                       ),
                       child: Text(
                         'Minggu Ini',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.outfit(
-                          color: _isWeeklySelected ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+                          color: _isWeeklySelected
+                              ? const Color(0xFF10B981)
+                              : theme.colorScheme.onSurfaceVariant,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
                         ),
@@ -148,7 +167,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
             Text(
               'Statistik Mingguan',
               style: GoogleFonts.outfit(
-                color: Colors.white,
+                color: theme.colorScheme.onSurface,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -158,15 +177,24 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
               height: 200,
               padding: const EdgeInsets.only(top: 16, right: 16, left: 0, bottom: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B).withOpacity(0.6),
+                color: isDark
+                    ? const Color(0xFF1E293B).withValues(alpha: 0.6)
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.04)),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.04)
+                      : Colors.black.withValues(alpha: 0.04),
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 4))],
               ),
               child: weeklyUsage.isEmpty
                   ? Center(
                       child: Text(
                         'Memuat data chart...',
-                        style: GoogleFonts.outfit(color: const Color(0xFF64748B)),
+                        style: GoogleFonts.outfit(color: theme.colorScheme.outline),
                       ),
                     )
                   : BarChart(
@@ -175,14 +203,18 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                         maxY: _calculateMaxY(weeklyUsage),
                         barTouchData: BarTouchData(
                           touchTooltipData: BarTouchTooltipData(
-                            getTooltipColor: (_) => const Color(0xFF1E293B),
-                            tooltipBorder: BorderSide(color: Colors.white.withOpacity(0.1)),
+                            getTooltipColor: (_) => isDark ? const Color(0xFF1E293B) : Colors.white,
+                            tooltipBorder: BorderSide(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.1)
+                                  : Colors.black.withValues(alpha: 0.1),
+                            ),
                             getTooltipItem: (group, groupIndex, rod, rodIndex) {
                               final dayData = weeklyUsage[groupIndex];
                               return BarTooltipItem(
                                 '${_getIndonesianDayName(dayData.date)}\n',
                                 GoogleFonts.outfit(
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onSurface,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 13,
                                 ),
@@ -218,7 +250,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                                     child: Text(
                                       _getIndonesianDayName(dayData.date),
                                       style: GoogleFonts.outfit(
-                                        color: const Color(0xFF64748B),
+                                        color: theme.colorScheme.outline,
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -294,7 +326,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
           Text(
             _isWeeklySelected ? 'Penggunaan Aplikasi Minggu Ini' : 'Penggunaan Aplikasi Hari Ini',
             style: GoogleFonts.outfit(
-              color: Colors.white,
+              color: theme.colorScheme.onSurface,
               fontSize: 18,
               fontWeight: FontWeight.bold,
             ),
@@ -305,14 +337,20 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 32),
               decoration: BoxDecoration(
-                color: const Color(0xFF1E293B).withOpacity(0.4),
+                color: isDark
+                    ? const Color(0xFF1E293B).withValues(alpha: 0.4)
+                    : Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.white.withOpacity(0.04)),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.04)
+                      : Colors.black.withValues(alpha: 0.04),
+                ),
               ),
               child: Center(
                 child: Text(
                   'Tidak ada data statistik.',
-                  style: GoogleFonts.outfit(color: const Color(0xFF64748B)),
+                  style: GoogleFonts.outfit(color: theme.colorScheme.outline),
                 ),
               ),
             )
@@ -342,9 +380,18 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF1E293B).withOpacity(0.5),
+                    color: isDark
+                        ? const Color(0xFF1E293B).withValues(alpha: 0.5)
+                        : Colors.white,
                     borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: Colors.white.withOpacity(0.03)),
+                    border: Border.all(
+                      color: isDark
+                          ? Colors.white.withValues(alpha: 0.04)
+                          : Colors.black.withValues(alpha: 0.04),
+                    ),
+                    boxShadow: isDark
+                        ? null
+                        : [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 6, offset: const Offset(0, 3))],
                   ),
                   child: Row(
                     children: [
@@ -352,7 +399,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                         width: 40,
                         height: 40,
                         decoration: BoxDecoration(
-                          color: app.iconBytes != null ? Colors.transparent : appColor.withOpacity(0.1),
+                          color: app.iconBytes != null ? Colors.transparent : appColor.withValues(alpha: 0.12),
                           shape: BoxShape.circle,
                         ),
                         child: app.iconBytes != null
@@ -388,7 +435,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                                   child: Text(
                                     app.appName,
                                     style: GoogleFonts.outfit(
-                                      color: Colors.white,
+                                      color: theme.colorScheme.onSurface,
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -399,7 +446,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                                 Text(
                                   formatDuration(app.durationMinutes),
                                   style: GoogleFonts.outfit(
-                                    color: const Color(0xFFE2E8F0),
+                                    color: theme.colorScheme.onSurfaceVariant,
                                     fontSize: 13,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -412,7 +459,9 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                               child: LinearProgressIndicator(
                                 value: percentage,
                                 minHeight: 4,
-                                backgroundColor: const Color(0xFF1E293B),
+                                backgroundColor: isDark
+                                    ? const Color(0xFF334155)
+                                    : Colors.black.withValues(alpha: 0.06),
                                 valueColor: AlwaysStoppedAnimation<Color>(appColor),
                               ),
                             )
@@ -448,20 +497,32 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
     bool isFullWidth = false,
     Uint8List? iconBytes,
   }) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       width: isFullWidth ? double.infinity : null,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B).withOpacity(0.7),
+        color: isDark
+            ? const Color(0xFF1E293B).withValues(alpha: 0.7)
+            : Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.04)),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.04)
+              : Colors.black.withValues(alpha: 0.04),
+        ),
+        boxShadow: isDark
+            ? null
+            : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 4))],
       ),
       child: Row(
         children: [
           Container(
             padding: iconBytes != null ? EdgeInsets.zero : const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: iconBytes != null ? Colors.transparent : iconColor.withOpacity(0.1),
+              color: iconBytes != null ? Colors.transparent : iconColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: iconBytes != null
@@ -485,7 +546,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                 Text(
                   title,
                   style: GoogleFonts.outfit(
-                    color: const Color(0xFF94A3B8),
+                    color: theme.colorScheme.onSurfaceVariant,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.0,
@@ -495,7 +556,7 @@ class _UsageStatsTabState extends State<UsageStatsTab> {
                 Text(
                   value,
                   style: GoogleFonts.outfit(
-                    color: Colors.white,
+                    color: theme.colorScheme.onSurface,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),

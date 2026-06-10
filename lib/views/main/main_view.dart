@@ -125,24 +125,29 @@ class _MainViewState extends State<MainView> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return AnimatedBuilder(
       animation: _usageController,
       builder: (context, _) {
         // Tampilkan loading screen jika data sedang dimuat pertama kali
         if (_usageController.isLoading && _usageController.todayUsage == null) {
-          return const Scaffold(
-            backgroundColor: Color(0xFF0F172A),
+          return Scaffold(
             body: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(
+                  const CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF10B981)),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     'Mengambil data penggunaan...',
-                    style: TextStyle(color: Color(0xFF94A3B8), fontFamily: 'Outfit'),
+                    style: TextStyle(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      fontFamily: 'Outfit',
+                    ),
                   )
                 ],
               ),
@@ -153,9 +158,20 @@ class _MainViewState extends State<MainView> with WidgetsBindingObserver {
         final List<Widget> tabs = [
           HomeTab(
             controller: _usageController,
+            timerController: _timerController,
             onViewStatsSelected: () {
               setState(() {
                 _currentIndex = 3; // Pindah ke tab statistik (sekarang index 3)
+              });
+            },
+            onViewTimerSelected: () {
+              setState(() {
+                _currentIndex = 1; // Pindah ke tab timer (sekarang index 1)
+              });
+            },
+            onViewLightSelected: () {
+              setState(() {
+                _currentIndex = 2; // Pindah ke tab cahaya (sekarang index 2)
               });
             },
           ),
@@ -166,9 +182,9 @@ class _MainViewState extends State<MainView> with WidgetsBindingObserver {
         ];
 
         return Scaffold(
-          backgroundColor: const Color(0xFF0F172A),
+          // Biarkan Scaffold menggunakan scaffoldBackgroundColor dari Theme
           appBar: AppBar(
-            backgroundColor: const Color(0xFF0F172A),
+            // AppBar menggunakan AppBarTheme dari main.dart, tidak perlu override
             elevation: 0,
             scrolledUnderElevation: 0,
             surfaceTintColor: Colors.transparent,
@@ -183,7 +199,7 @@ class _MainViewState extends State<MainView> with WidgetsBindingObserver {
                               ? 'Statistik Penggunaan'
                               : 'Profil Pengguna',
               style: GoogleFonts.outfit(
-                color: Colors.white,
+                color: theme.colorScheme.onSurface,
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
@@ -226,9 +242,10 @@ class _MainViewState extends State<MainView> with WidgetsBindingObserver {
                   _currentIndex = index;
                 });
               },
-              backgroundColor: const Color(0xFF1E293B),
+              // Gunakan warna dari BottomNavigationBarThemeData di main.dart
+              backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
               selectedItemColor: const Color(0xFF10B981),
-              unselectedItemColor: const Color(0xFF64748B),
+              unselectedItemColor: isDark ? const Color(0xFF64748B) : const Color(0xFF94A3B8),
               showSelectedLabels: true,
               showUnselectedLabels: true,
               type: BottomNavigationBarType.fixed,
